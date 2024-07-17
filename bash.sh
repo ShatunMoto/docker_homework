@@ -40,6 +40,7 @@ sudo mkdir ~/docker_image_apache
 #!TODO добавить сюда скачивание и wordpress и настройку apache
 sudo echo "
 FROM astra:stable-orel
+RUN echo \"ru_RU.UTF-8 UTF-8\" >> /etc/locale.gen | echo \"en_US.UTF-8 UTF-8\" >> /etc/locale.gen | locale-gen | update-locale ru_RU.UTF-8
 RUN apt update && apt install -qy apache2 ghostscript libapache2-mod-php php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-xml php-zip
 RUN adduser --disabled-password --gecos \"\" test && echo test:test | chpasswd
 RUN mkdir -p /srv/www | chown www-data: /srv/www | curl https://wordpress.org/latest.tar.gz | sudo -u www-data tar zx -C /srv/www
