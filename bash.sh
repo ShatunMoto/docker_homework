@@ -1,28 +1,28 @@
 #!/bin/bash
 
- echo "deb [arch=amd64 trusted=yes] http://dl.astralinux.ru/astra/stable/1.7_x86-64/repository-update/ 1.7_x86-64 non-free contrib main  
+echo "deb [arch=amd64 trusted=yes] http://dl.astralinux.ru/astra/stable/1.7_x86-64/repository-update/ 1.7_x86-64 non-free contrib main  
 deb [arch=amd64 trusted=yes] http://dl.astralinux.ru/astra/stable/1.7_x86-64/repository-base/ 1.7_x86-64 main contrib non-free 
 deb [arch=amd64 trusted=yes] http://dl.astralinux.ru/astra/stable/1.7_x86-64/repository-extended/ 1.7_x86-64 non-free contrib main " &> /etc/apt/sources.list.d/sources_last_astra.list
 
- apt install -qy debootstrap
+apt install -qy debootstrap
 #Сюда установочный диск с астрой не ниже 1.7.2 
- echo "#!/bin/bash
+echo "#!/bin/bash
 debootstrap --include ncurses-term,locales,gawk,lsb-release,acl --components=main,contrib,non-free 1.7_x86-64 \$1 http://repo.inter.sibghk.ru/repo/base_updated_1.7.5" &> makeastra
 #debootstrap --include ncurses-term,locales,gawk,lsb-release,acl --components=main,contrib,non-free 1.7_x86-64 \$1 http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.5/repository-main" &> makeastra
- chmod +x makeastra
+chmod +x makeastra
 
- apt install docker.io docker-compose #Установить докер
- adduser $USER docker
+apt install docker.io docker-compose #Установить докер
+adduser $USER docker
 
- mkdir docker_image_astra
-# ./makeastra docker_image_astra
- cp /etc/apt/sources.list.d/sources_last_astra.list docker_image_astra/etc/apt/sources.list
+mkdir docker_image_astra
+./makeastra docker_image_astra
+cp /etc/apt/sources.list.d/sources_last_astra.list docker_image_astra/etc/apt/sources.list
 
- echo "#!/bin/bash
+echo "#!/bin/bash
 tar -C \$1 -cpf - . | docker import - \$2 --change \"ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\" --change 'CMD [\"/bin/bash\"]' --change \"ENV LANG=ru_RU.UTF-8\"" &> dockerimport
- chmod +x dockerimport
- ./dockerimport docker_image_astra astra:stable-orel
- mkdir docker_image_apache
+chmod +x dockerimport
+./dockerimport docker_image_astra astra:stable-orel
+mkdir docker_image_apache
 #  echo  "<VirtualHost *:80>
 #     DocumentRoot /srv/www/wordpress
 #     <Directory /srv/www/wordpress>
@@ -38,7 +38,7 @@ tar -C \$1 -cpf - . | docker import - \$2 --change \"ENV PATH /usr/local/sbin:/u
 # </VirtualHost>" &> docker_image_apache/wordpress.conf
 
 #!TODO добавить сюда скачивание и wordpress и настройку apache
- echo "
+echo "
 FROM astra:stable-orel
 RUN apt update && apt install -qy apache2
 " &> docker_image_apache/Dockerfile
@@ -49,11 +49,10 @@ RUN apt update && apt install -qy apache2
 # ENV LANGUAGE=en:el
 # RUN echo \"ru_RU.UTF-8 UTF-8\" >> /etc/locale.gen | echo \"en_US.UTF-8 UTF-8\" >> /etc/locale.gen | locale-gen | update-locale ru_RU.UTF-8
 
- docker build docker_image_apache -t astra:175-apache
-
- mkdir apache_conf data logs
+docker build docker_image_apache -t astra:175-apache
+mkdir apache_conf data logs
  
- echo  "services:
+echo  "services:
   nginx:
     image: astra:175-apache
     volumes:
