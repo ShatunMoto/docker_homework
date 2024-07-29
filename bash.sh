@@ -51,15 +51,28 @@ RUN a2enmod rewrite
 # RUN echo \"ru_RU.UTF-8 UTF-8\" >> /etc/locale.gen | echo \"en_US.UTF-8 UTF-8\" >> /etc/locale.gen | locale-gen | update-locale ru_RU.UTF-8
 
 docker build docker_image_apache -t astra:175-apache
-mkdir apache_conf data logs
+mkdir apache_conf data logs db
 wget -c http://wordpress.org/latest.tar.gz
 tar -xzvf latest.tar.gz -C data/
 
 echo  "services:
   nginx:
     image: astra:175-apache
+    restart: always
+    ports:
+      - 8080:80
     volumes:
       - ./apache_conf:/etc/nginx/conf.d
       - ./data:/var/www/html
       - ./logs:/var/log/apache2
+      - ./db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
       " &> docker-compose.yml
