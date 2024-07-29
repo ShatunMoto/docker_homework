@@ -53,8 +53,7 @@ RUN a2enmod rewrite
 docker build docker_image_apache -t astra:175-apache
 mkdir apache_conf data logs
 wget -c http://wordpress.org/latest.tar.gz
-tar -xzvf latest.tar.gz
-rsync -av wordpress/* data/
+tar -xzvf latest.tar.gz -C data/
 
 echo  "services:
   nginx:
