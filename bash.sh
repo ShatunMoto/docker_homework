@@ -40,7 +40,8 @@ mkdir docker_image_apache
 #!TODO добавить сюда скачивание и wordpress и настройку apache
 echo "
 FROM astra:stable-orel
-RUN apt update && apt install -qy apache2
+RUN apt update && apt install -qy apache2 default-mysql-client default-mysql-server php8.1 php8.1-mysql libapache2-mod-php8.1 php8.1-cli php8.1-cgi php8.1-gd
+RUN a2enmod rewrite
 " &> docker_image_apache/Dockerfile
 #RUN mysql -Bse \"CREATE DATABASE wordpress;CREATE USER wordpress@localhost IDENTIFIED BY '12345678';GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER ON wordpress.* TO wordpress@localhost;FLUSH PRIVILEGES;\"
 # ENV LC_CTYPE=en_US.UTF-8
@@ -51,7 +52,10 @@ RUN apt update && apt install -qy apache2
 
 docker build docker_image_apache -t astra:175-apache
 mkdir apache_conf data logs
- 
+wget -c http://wordpress.org/latest.tar.gz
+tar -xzvf latest.tar.gz
+rsync -av wordpress/* data/
+
 echo  "services:
   nginx:
     image: astra:175-apache
